@@ -119,13 +119,11 @@ class Progress(object):
         self.emgimu_u = emgimu
     
     def subscribeIMU(self):
-        #rospy.init_node('state_receiver')
         rospy.Subscriber('/myo/l/emgimu', EMGIMU, self.updateLower, queue_size=2)
         rospy.Subscriber('/myo/u/emgimu', EMGIMU, self.callback, queue_size=2)
-        #rospy.spin()
     
     def starter(self, msg):
-        self.prompt.callback(0) # publish expected trajectory
+        #self.prompt.callback(0) # publish expected trajectory
         self.start = True
     
 #    def subscribeTrigger(self):

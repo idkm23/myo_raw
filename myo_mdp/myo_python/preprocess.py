@@ -87,9 +87,18 @@ def preprocess(dataPath, update_extremes=False, identifier=''):
     IMU = IMU[6:-6:5, :]
     
     # There are often slightly more imu data points than emg points
-    n = EMG.shape[0]
-    print "difference between # imu and # emg:", IMU.shape[0]-n
-    IMU = IMU[0:n, :]
+    n_emg = EMG.shape[0]
+    n_imu = IMU.shape[0]
+    print "difference between # imu and # emg:", n_imu-n_emg
+    
+    if n_emg < n_imu:
+        n = n_emg
+        IMU = IMU[0:n, :]
+    elif n_emg > n_imu:
+        n = n_imu
+        EMG = EMG[0:n, :]
+    else:
+        n = n_imu
     
     Data = np.hstack((EMG, IMU))
 #    print Data.shape

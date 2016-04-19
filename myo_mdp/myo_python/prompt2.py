@@ -13,6 +13,7 @@ from build_mdp import BuildMDP
 import cPickle as pickle
 import argparse
 import os
+import sys
 import numpy as np
 from align_signal import align_signal
 import subprocess
@@ -178,7 +179,12 @@ def signal_handler(msg):
         bagFiles = glob.glob(os.path.join('../../data/work', '*.bag'))
         samples = len(bagFiles)
         print "number of training samples:", samples
+        if samples == 0:
+            "No data to process!"
+            return
         build_classifier(samples=samples)
+        demo = myo_state2.MyoPrompt2()
+        demo.callback(0)
     elif msg.data == 1:
         mdp = pickle.load(open('../data/mdp.pkl'))
         args = {"give_prompt": True,
