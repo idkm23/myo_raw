@@ -47,12 +47,9 @@ class Progress(object):
     def __init__(self, classifier=None, classifier_pkl='../data/state_classifier.pkl', give_prompt=True, **kwargs):
         if classifier:
             self.classifier = classifier
-            self.EMG_MAX_l = kwargs.get('EMG_MAX_l', 585)
-            self.EMG_MIN_l = kwargs.get('EMG_MIN_l', 0)
-            self.GYRO_MAX_l = kwargs.get('GYRO_MAX_l', 500)
-            self.EMG_MAX_u = kwargs.get('EMG_MAX_u', 585)
-            self.EMG_MIN_u = kwargs.get('EMG_MIN_u', 0)
-            self.GYRO_MAX_u = kwargs.get('GYRO_MAX_u', 500)
+            self.EMG_MAX = kwargs.get('EMG_MAX', 585)
+            self.EMG_MIN = kwargs.get('EMG_MIN', 0)
+            self.GYRO_MAX = kwargs.get('GYRO_MAX', 500)
             self.baseline = kwargs.get('baseline', 0)
         elif classifier_pkl:
             # self.classifier = classifier.SignalClassifier()
@@ -133,14 +130,14 @@ class Progress(object):
     def getProgress(self, emgimu_l, emgimu_u):
         print "Tracking your progress now..."
         
-        emg_l = preprocess.process_emg(np.array(emgimu_l.emg), self.EMG_MAX_l, self.EMG_MIN_l)
+        emg_l = preprocess.process_emg(np.array(emgimu_l.emg), self.EMG_MAX, self.EMG_MIN)
         acc_l = np.array(emgimu_l.linear_acceleration)
-        gyro_l = preprocess.process_gyro(np.array(emgimu_l.angular_velocity), self.GYRO_MAX_l, discrete=False)
+        gyro_l = preprocess.process_gyro(np.array(emgimu_l.angular_velocity), self.GYRO_MAX, discrete=False)
         orie_l = np.array(emgimu_l.orientation)
         
-        emg_u = preprocess.process_emg(np.array(emgimu_u.emg), self.EMG_MAX_u, self.EMG_MIN_u)
+        emg_u = preprocess.process_emg(np.array(emgimu_u.emg), self.EMG_MAX, self.EMG_MIN)
         acc_u = np.array(emgimu_u.linear_acceleration)
-        gyro_u = preprocess.process_gyro(np.array(emgimu_u.angular_velocity), self.GYRO_MAX_u, discrete=False)
+        gyro_u = preprocess.process_gyro(np.array(emgimu_u.angular_velocity), self.GYRO_MAX, discrete=False)
         orie_u = np.array(emgimu_u.orientation)
         
         signal_array = np.hstack((EMG_WEIGHT*emg_l, acc_l, gyro_l, orie_l, EMG_WEIGHT*emg_u, acc_u, gyro_u, orie_u))

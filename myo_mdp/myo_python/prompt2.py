@@ -175,6 +175,8 @@ def build_classifier(samples=1, nClusters=None, ID='user', used=False):
 
 def signal_handler(msg):
     print "signal received", msg
+    subprocess.call(['python', 'makeData2.py', '../../data/work']) # if we find the build time between each button hit is inconvienient, then we can make another button for it
+
     if msg.data == 0:
         bagFiles = glob.glob(os.path.join('../../data/work', '*.bag'))
         samples = len(bagFiles)
@@ -198,7 +200,6 @@ if __name__ == '__main__':
     import rospy
     from std_msgs.msg import Int32, Empty
     
-    subprocess.call(['python', 'makeData2.py', '../../data/work'])
     rospy.init_node('build_classifier')
     rospy.Subscriber('/exercise/mode', Int32, signal_handler)
     print "Classifier launched. Listening to message..."
