@@ -23,7 +23,7 @@ MYOHW_ORIENTATION_SCALE = 16384.0
 MYOHW_ACCELEROMETER_SCALE = 2048.0
 MYOHW_GYROSCOPE_SCALE = 16.0
 
-UPPER_ARM_DEVICE_NAME = "Winnie's Myo"
+LOWER_ARM_DEVICE_NAME = "Winnie's Myo"
 
 class MyoNode(object):
     """A ros wrapper for myo_raw"""
@@ -33,10 +33,10 @@ class MyoNode(object):
         self.m = Myo(NNClassifier())
         self.connect(self.m)
 
-        if self.m.device_name == UPPER_ARM_DEVICE_NAME:
-            self.identifier  = 'u'
-        else:
+        if self.m.device_name == LOWER_ARM_DEVICE_NAME:
             self.identifier  = 'l'
+        else:
+            self.identifier  = 'u'
 
         #might be necessary for some classification?
         #traning_data_directory = rospy.get_param('~training_data_dir', None)
@@ -196,10 +196,13 @@ class MyThread(Thread):
                 sleep(1)
 
             if not MyThread.isInitialized(MyThread.t2):
-                MyThread.t2.m.keepScanning = False
-                sleep(1)
-                MyThread.t2.m.disconnect()
-                sleep(1)
+
+                # disconnects a myo 
+                if MyThread.t2 != None and MyThread.t2.m != None:
+                    MyThread.t2.m.keepScanning = False
+                    sleep(1)
+                    MyThread.t2.m.disconnect()
+                    sleep(1)
 
                 if myoCount > 1:
                     MyThread.t2.join()
