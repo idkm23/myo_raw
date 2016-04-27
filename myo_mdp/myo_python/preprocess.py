@@ -100,16 +100,10 @@ def preprocess(dataPath, update_extremes=False, identifier=''):
     else:
         n = n_imu
     
-    Data = np.hstack((EMG, IMU))
-#    print Data.shape
-#    print EMG.shape
-#    print IMU.shape
-    # data smoothing polyolder=3, windowsize=41
-    Data_smooth = savgol_filter(Data, 31, 3, axis=0)
-    
     # add time dimension
     Time = np.arange(n).reshape((n,1))
-    Data = np.hstack((Time, Data_smooth))
+    EMG_smooth = savgol_filter(EMG, 31, 3, axis=0)
+    Data = np.hstack((Time, EMG_smooth, IMU))
     
     #baseRot = get_base('../../data/work/0/')
     return normalize_myo(Data, update_extremes);

@@ -12,11 +12,10 @@ import tf
 
 
 class MyoDemo2(object):
-    def __init__(self, use_euler=False):
+    def __init__(self, pub_l, pub_u, use_euler=False):
 
-        self.pub_l = rospy.Publisher('/exercise/l/playback', Quaternion, queue_size=20)
-        self.pub_u = rospy.Publisher('/exercise/u/playback', Quaternion, queue_size=20)
-    
+        self.pub_l = pub_l
+        self.pub_u = pub_u
     
         orientation_l = genfromtxt('../data/demo_l.dat', delimiter=',')
         orientation_u = genfromtxt('../data/demo_u.dat', delimiter=',')
@@ -47,6 +46,7 @@ class MyoDemo2(object):
         self.quat_l.append(Quaternion(x=-1337, y=-1337, z=-1337, w=-1337))
         self.quat_u.append(Quaternion(x=-1337, y=-1337, z=-1337, w=-1337))
         
+        print "Done writing!"
         
 
     def callback(self, message):
