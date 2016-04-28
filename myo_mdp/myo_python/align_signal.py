@@ -7,6 +7,23 @@ from dtwtoolbox.dtw import dtw
 from sklearn.metrics.pairwise import euclidean_distances
 import numpy as np
 
+def get_distance(s, t, w=5, has_time=True):
+    """
+    every row of s or t is a time series
+    every column is dimensions of signal at one time point
+    w size is symmetric. w=5 means the window has size 11.
+    """
+    
+    if has_time:
+        s = s[:, 1:]
+        t = t[:, 1:]
+        
+    dist_fun = euclidean_distances
+    dist, cost, acc, path = dtw(s, t, dist_fun)
+    
+    return dist 
+
+
 def align_signal(s, t, w=5, has_time=True):
     """
     every row of s or t is a time series
