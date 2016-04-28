@@ -18,6 +18,8 @@ import numpy as np
 from align_signal import align_signal
 import subprocess
 import glob
+import time
+from geometry_msgs.msg import Quaternion
 
 TIME_WEIGHT = 0.05
 EMG_WEIGHT = 1
@@ -172,20 +174,26 @@ def build_classifier(samples=1, nClusters=None, ID='user', used=False):
     action_classifier.train(emg_demos, emg_cluster.labels, trainingFile=None)
     pickle.dump(action_classifier, open('../data/action_classifier.pkl', 'wb'))
 
+def gather_samples_and_build():
+    makeProcess = subprocess.Popen(['python', 'makeData2.py', '../../data/work']) 
+    makeProcess.wait()
+
+    bagFiles = glob.glob(os.path.join('../../data/work', '*.bag'))
+    samples = len(bagFiles)
+    print "number of training samples:", samples
+    if samples == 0:
+        "No data to process!"
+        return
+    build_classifier(samples=samples)
 
 def signal_handler(msg):
     print "signal received", msg
-    subprocess.call(['python', 'makeData2.py', '../../data/work']) # if we find the build time between each button hit is inconvienient, then we can make another button for it
+
+    gather_samples_and_build() # if we find the build time between each button hit is inconvienient, then we can make another button for it
 
     if msg.data == 0:
-        bagFiles = glob.glob(os.path.join('../../data/work', '*.bag'))
-        samples = len(bagFiles)
-        print "number of training samples:", samples
-        if samples == 0:
-            "No data to process!"
-            return
-        build_classifier(samples=samples)
-        demo = myo_state2.MyoPrompt2()
+        demo = myo_state2.MyoPrompt2(pub_l, pub_u)
+        time.sleep(.5)
         demo.callback(0)
     elif msg.data == 1:
         mdp = pickle.load(open('../data/mdp.pkl'))
@@ -202,6 +210,11 @@ if __name__ == '__main__':
     
     rospy.init_node('build_classifier')
     rospy.Subscriber('/exercise/mode', Int32, signal_handler)
+
+    global pub_l, pub_u
+    pub_l = rospy.Publisher('/exercise/l/playback', Quaternion, queue_size=1)
+    pub_u = rospy.Publisher('/exercise/u/playback', Quaternion, queue_size=1)
+
     print "Classifier launched. Listening to message..."
     rospy.spin()
 

@@ -21,8 +21,8 @@ import sys
 import math
 
 class MyoPrompt2(MyoDemo2):
-    def __init__(self):
-        super(MyoPrompt2, self).__init__()
+    def __init__(self, pub_l, pub_u):
+        super(MyoPrompt2, self).__init__(pub_l, pub_u)
         
     def callback(self, percentage):
         counter = 0
