@@ -12,11 +12,9 @@ import tf
 
 
 class MyoDemo2(object):
-    def __init__(self, pub_l, pub_u, use_euler=False):
 
-        self.pub_l = pub_l
-        self.pub_u = pub_u
-    
+    def __init__(self, use_euler=False):
+
         orientation_l = genfromtxt('../data/demo_l.dat', delimiter=',')
         orientation_u = genfromtxt('../data/demo_u.dat', delimiter=',')
         

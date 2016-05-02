@@ -21,16 +21,16 @@ import sys
 import math
 
 class MyoPrompt2(MyoDemo2):
-    def __init__(self, pub_l, pub_u):
-        super(MyoPrompt2, self).__init__(pub_l, pub_u)
+    def __init__(self):
+        super(MyoPrompt2, self).__init__()
         
     def callback(self, percentage):
         counter = 0
         starting = int(percentage*len(self.quat_l))
         rate = rospy.Rate(10) # 50hz
         for i in range(starting, len(self.quat_l)):
-            self.pub_l.publish(self.quat_l[i])
-            self.pub_u.publish(self.quat_u[i])
+            MyoDemo2.pub_l.publish(self.quat_l[i])
+            MyoDemo2.pub_u.publish(self.quat_u[i])
             
             counter += 1
             rate.sleep()
@@ -156,7 +156,7 @@ class Progress(object):
             self.task = self.full_task[:]
             self.start = False
             self.progress = 0
-            self.evaluate_pfmce()
+            #self.evaluate_pfmce()
             
             #sys.exit()
         if state == self.task[0]:

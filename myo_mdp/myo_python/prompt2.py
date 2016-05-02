@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from preprocess import preprocess
 import classifier
 import myo_state2
+from myo_demo2 import MyoDemo2
 from build_mdp import BuildMDP
 import cPickle as pickle
 import argparse
@@ -186,22 +187,33 @@ def gather_samples_and_build():
         return
     build_classifier(samples=samples)
 
+progress = 0
+
 def signal_handler(msg):
     print "signal received", msg
 
-    gather_samples_and_build() # if we find the build time between each button hit is inconvienient, then we can make another button for it
+    global progress
+
+    if msg.data != 1 and progress != 0:
+        progress.task = progress.full_task[:]
+        progress.start = False
+        progress.progress = 0
 
     if msg.data == 0:
-        demo = myo_state2.MyoPrompt2(pub_l, pub_u)
+        # There is intentional repetition of this line in both conidition statements rather than
+        # at the top of the routine because msg.data is not always 0 or 1
+        gather_samples_and_build() 
+        demo = myo_state2.MyoPrompt2()
         time.sleep(.5)
         demo.callback(0)
     elif msg.data == 1:
+        gather_samples_and_build() 
         mdp = pickle.load(open('../data/mdp.pkl'))
         args = {"give_prompt": True,
                 "mdp": mdp,
                 "id": "new patient"
                 } 
-        
+
         progress = myo_state2.Progress(classifier_pkl='../data/state_classifier.pkl', **args)
 
 if __name__ == '__main__':
@@ -211,9 +223,8 @@ if __name__ == '__main__':
     rospy.init_node('build_classifier')
     rospy.Subscriber('/exercise/mode', Int32, signal_handler)
 
-    global pub_l, pub_u
-    pub_l = rospy.Publisher('/exercise/l/playback', Quaternion, queue_size=1)
-    pub_u = rospy.Publisher('/exercise/u/playback', Quaternion, queue_size=1)
+    MyoDemo2.pub_l = rospy.Publisher('/exercise/l/playback', Quaternion, queue_size=1)
+    MyoDemo2.pub_u = rospy.Publisher('/exercise/u/playback', Quaternion, queue_size=1)
 
     print "Classifier launched. Listening to message..."
     rospy.spin()
