@@ -68,7 +68,7 @@ def normalize_myo(data, update_extremes=False):
 
     Data = np.hstack((T,EMG,ACC,GYRO,QUAT))
 #    Data = np.hstack((T, EMG, ORI))
-    return Data, EMG_max, EMG_min, GYRO_max 
+    return [Data, EMG_max, EMG_min, GYRO_max] 
 
 def preprocess(dataPath, update_extremes=False, identifier=''):
     if identifier:
@@ -79,12 +79,14 @@ def preprocess(dataPath, update_extremes=False, identifier=''):
     GYRO = np.genfromtxt(os.path.join(dataPath,'gyro'+identifier+'.mat'), delimiter=',')
     ORI = np.genfromtxt(os.path.join(dataPath,'orientation'+identifier+'.mat'), delimiter=',')
     IMU = np.hstack((ACC, GYRO, ORI))
+    STATES = np.genfromtxt(os.path.join(dataPath,'states.dat'))
     #IMU = ORI
 
     # Down sample, from 50 Hz to 10 Hz
     # remove end points
     EMG = EMG[6:-6:5, :]
     IMU = IMU[6:-6:5, :]
+    STATES = STATES[6:-6:5]
     
     # There are often slightly more imu data points than emg points
     n_emg = EMG.shape[0]
@@ -97,6 +99,9 @@ def preprocess(dataPath, update_extremes=False, identifier=''):
     elif n_emg > n_imu:
         n = n_imu
         EMG = EMG[0:n, :]
+        print n
+        print STATES.shape
+        STATES = STATES[0:n]
     else:
         n = n_imu
     
@@ -106,7 +111,9 @@ def preprocess(dataPath, update_extremes=False, identifier=''):
     Data = np.hstack((Time, EMG_smooth, IMU))
     
     #baseRot = get_base('../../data/work/0/')
-    return normalize_myo(Data, update_extremes);
+    processed = normalize_myo(Data, update_extremes);
+    processed.append(STATES)
+    return processed
     
 
 def main():

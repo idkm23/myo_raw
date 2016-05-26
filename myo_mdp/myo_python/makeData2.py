@@ -111,20 +111,49 @@ def readBag(bagFile, dest_path):
     emg_u = open(os.path.join(dest_path, 'emg_u.dat'),'w')
     imu_l = open(os.path.join(dest_path, 'imu_l.dat'),'w')
     emg_l = open(os.path.join(dest_path, 'emg_l.dat'),'w')
+    states = open(os.path.join(dest_path, 'raw_states.dat'),'w')
+    state = 0
     for topic, msg, t in rosbag.Bag(bagFile).read_messages():
         if topic == '/myo/u/imu':
             imu_u.write(str(msg))
+            states.write(str(state)+'\n')
         if topic == '/myo/u/emg':
             emg_u.write(str(msg))
         if topic == '/myo/l/imu':
             imu_l.write(str(msg))
         if topic == '/myo/l/emg':
             emg_l.write(str(msg))
+            
+        if topic == '/exercise/detected_state':
+            state += 1
     imu_u.close()
     emg_u.close()
     imu_l.close()
     emg_l.close()
 #    ort.close()
+
+
+def process_states(dest_path):
+    width = 10
+    ps  = 0
+    with open(os.path.join(dest_path, 'raw_states.dat')) as f:
+        with open(os.path.join(dest_path, 'states.dat'), 'w') as fout:
+            i = 0
+            print i
+            for line in f:
+                s = int(line.strip())
+                if width > 0:
+                    fout.write(line)
+                    width -= 1
+                else:
+                    fout.write('-1\n')
+
+                if s-ps==1:
+                    fout.write(line)
+                    width = 10
+                ps = s
+
+
 
         
 if __name__ == "__main__":
@@ -151,3 +180,5 @@ if __name__ == "__main__":
         maker.makeACC()
         maker.makeGyroscope()
         maker.makeOrientation()
+
+        process_states(dest_path)
